@@ -93,18 +93,23 @@
     if (scanImage == nil) {
         return;
     }
-    CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeQRCode context:nil options:@{CIDetectorAccuracy: CIDetectorAccuracyHigh}];
-    CIImage *image = [[CIImage alloc] initWithImage:scanImage];
-    NSArray *features = [detector featuresInImage:image];
-    
-    NSMutableString *qrCodeLink = [NSMutableString string];
-    for (CIQRCodeFeature *feature in features) {
-        [qrCodeLink appendString:feature.messageString];
-    }
-    
-    if (completeHandler) {
-        completeHandler(qrCodeLink);
-    }
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        
+        CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeQRCode context:nil options:@{CIDetectorAccuracy: CIDetectorAccuracyHigh}];
+        CIImage *image = [[CIImage alloc] initWithImage:scanImage];
+        NSArray *features = [detector featuresInImage:image];
+        
+        NSMutableString *qrCodeLink = [NSMutableString string];
+        for (CIQRCodeFeature *feature in features) {
+            [qrCodeLink appendString:feature.messageString];
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completeHandler) {
+                completeHandler(qrCodeLink);
+            }
+        });
+    });
 }
 
 - (void)resetScanState {
