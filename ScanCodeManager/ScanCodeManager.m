@@ -24,6 +24,7 @@
 @implementation ScanCodeManager
 {
     BOOL _isScanComplete;
+    BOOL _torchIsOn;
 }
 
 + (instancetype)manager {
@@ -99,14 +100,11 @@
         CIImage *image = [[CIImage alloc] initWithImage:scanImage];
         NSArray *features = [detector featuresInImage:image];
         
-        NSMutableString *qrCodeLink = [NSMutableString string];
-        for (CIQRCodeFeature *feature in features) {
-            [qrCodeLink appendString:feature.messageString];
-        }
+        CIQRCodeFeature *feature = features.firstObject;
         
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completeHandler) {
-                completeHandler(qrCodeLink);
+                completeHandler(feature.messageString);
             }
         });
     });
@@ -132,6 +130,8 @@
         [device lockForConfiguration:nil];
         [device setTorchMode:AVCaptureTorchModeOn];
         [device unlockForConfiguration];
+        
+        _torchIsOn = YES;
     }
 }
 
@@ -142,7 +142,14 @@
         [device lockForConfiguration:nil];
         [device setTorchMode:AVCaptureTorchModeOff];
         [device unlockForConfiguration];
+        
+        _torchIsOn = NO;
     }
+}
+
+- (BOOL)torchIsOn {
+    
+    return _torchIsOn;
 }
 
 #pragma mark - AVCaptureMetadataOutputObjectsDelegate

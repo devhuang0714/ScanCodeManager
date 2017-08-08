@@ -69,4 +69,11 @@ typedef NS_ENUM(NSUInteger, ScanType) {
  */
 - (void)offTorch;
 
+/**
+ 当前闪关灯的状态
+ 
+ @return YES 打开状态  NO 关闭状态
+ */
+- (BOOL)torchIsOn;
+
 @end

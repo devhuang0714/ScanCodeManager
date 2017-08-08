@@ -10,100 +10,100 @@
 #import "ScanCodeManager.h"
 #import <AVFoundation/AVFoundation.h>
 #import "MaskView.h"
-#import "ImageScanViewController.h"
 
 #define SCREEN_WIDTH  [UIScreen mainScreen].bounds.size.width
 #define SCREEN_HEIGHT [UIScreen mainScreen].bounds.size.height
 
-@interface ViewController ()
-@property (nonatomic, strong) UIButton *resetBtn; // 重置扫描状态按钮
+@interface ViewController ()<UINavigationControllerDelegate, UIImagePickerControllerDelegate>
+
+@property (nonatomic, strong) MaskView *maskView;
+@property (nonatomic, strong) UIImageView *rectImageView;
+
 @property (nonatomic, strong) UIButton *torchBtn; // 闪光灯按钮
 @property (nonatomic, strong) UIButton *photoBtn; // 相册按钮
-@property (nonatomic, strong) UILabel *label;
+
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
     
-    [self setupUI];
+    [self initContent];
+    [self startScanCode];
 }
 
-- (void)setupUI {
+- (void)initContent {
     
-    CGRect scanRect = CGRectMake(30, 100, 200, 140);
-    UIView *scanView = [[UIView alloc] initWithFrame:CGRectMake(0, 100, SCREEN_WIDTH, 400)];
-    scanView.backgroundColor = [UIColor cyanColor];
-    [self.view addSubview:scanView];
-    
-    MaskView *mv = [[MaskView alloc] initWithFrame:scanView.bounds];
-    mv.maskRect = scanRect;
-    [scanView addSubview:mv];
-    
-    self.label = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, 30)];
-    self.label.textColor = [UIColor orangeColor];
-    [mv addSubview:self.label];
+    [self.view addSubview:self.maskView];
+    [self.view addSubview:self.rectImageView];
+    [self.view addSubview:self.photoBtn];
+    [self.view addSubview:self.torchBtn];
+}
+
+- (void)startScanCode {
     
     if ([self canOpenCamera]) {
-        [[ScanCodeManager manager] scanCodeWithType:ScanTypeQRCode|ScanTypeBarCode scanView:scanView scanRect:scanRect completeHandler:^(NSString *code) {
-            
-            self.label.text = code;
-            NSLog(@"viewController -code ==>: %@", code);
+        __weak typeof(self) weakSelf = self;
+        [[ScanCodeManager manager] scanCodeWithType:ScanTypeQRCode|ScanTypeBarCode scanView:self.view scanRect:self.maskView.maskRect completeHandler:^(NSString *code) {
+            __strong typeof(self) strongSelf = weakSelf;
+            [strongSelf scanCodeSuccessWith:code];
         }];
     } else {
         NSLog(@"不能访问相机");
     }
-    
-    [self setupButtons];
-}
-
-- (void)setupButtons {
-    self.resetBtn = [[UIButton alloc] initWithFrame:CGRectMake(20, SCREEN_HEIGHT - 100, 80, 30)];
-    [self.resetBtn setBackgroundColor:[UIColor orangeColor]];
-    self.resetBtn.titleLabel.font = [UIFont systemFontOfSize:12];
-    [self.resetBtn setTitle:@"重置状态" forState:UIControlStateNormal];
-    [self.view addSubview:self.resetBtn];
-    [self.resetBtn addTarget:self action:@selector(resetBtnAction:) forControlEvents:UIControlEventTouchUpInside];
-    
-    self.torchBtn = [[UIButton alloc] initWithFrame:CGRectMake(120, SCREEN_HEIGHT - 100, 80, 30)];
-    [self.torchBtn setBackgroundColor:[UIColor orangeColor]];
-    self.torchBtn.titleLabel.font = [UIFont systemFontOfSize:12];
-    [self.torchBtn setTitle:@"打开闪关灯" forState:UIControlStateNormal];
-    [self.torchBtn setTitle:@"关闭闪关灯" forState:UIControlStateSelected];
-    [self.view addSubview:self.torchBtn];
-    [self.torchBtn addTarget:self action:@selector(torchBtnAction:) forControlEvents:UIControlEventTouchUpInside];
-    
-    self.photoBtn = [[UIButton alloc] initWithFrame:CGRectMake(20, SCREEN_HEIGHT - 50, 120, 30)];
-    [self.photoBtn setBackgroundColor:[UIColor orangeColor]];
-    self.photoBtn.titleLabel.font = [UIFont systemFontOfSize:12];
-    [self.photoBtn setTitle:@"识别图片中的二维码" forState:UIControlStateNormal];
-    [self.view addSubview:self.photoBtn];
-    [self.photoBtn addTarget:self action:@selector(photoBtnAction:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 #pragma mark - button action
 
-- (void)resetBtnAction:(UIButton *)btn {
-    
-    self.label.text = @"";
-    [[ScanCodeManager manager] resetScanState];
-}
-
 - (void)torchBtnAction:(UIButton *)btn {
-    btn.selected = !btn.selected;
-    if (btn.selected) {
-        [[ScanCodeManager manager] onTorch];
-    } else {
+    
+    if ([[ScanCodeManager manager] torchIsOn]) {
+        
         [[ScanCodeManager manager] offTorch];
+    } else {
+        [[ScanCodeManager manager] onTorch];
     }
 }
 
 - (void)photoBtnAction:(UIButton *)btn {
     
-    ImageScanViewController *vc = [[ImageScanViewController alloc] init];
-    [self.navigationController pushViewController:vc animated:YES];
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    imagePickerController.delegate = self;
+    imagePickerController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+    imagePickerController.allowsEditing = YES;
+    
+    imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    [self presentViewController:imagePickerController animated:YES completion:nil];
+}
+
+#pragma mark - UIImagePickerControllerDelegate
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
+    
+    __weak typeof(self) weakSelf = self;
+    UIImage *pickImage =  [info objectForKey:UIImagePickerControllerEditedImage];
+    if (!pickImage){
+        pickImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+    }
+    [[ScanCodeManager manager] scanQRCodeFormImage:pickImage completeHandler:^(NSString *code) {
+        __strong typeof(self) strongSelf = weakSelf;
+        [strongSelf scanCodeSuccessWith:code];
+    }];
+    
+    [picker dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)scanCodeSuccessWith:(NSString *)code {
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"扫描结果" message:code preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *action1 = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        // 重置扫码状态
+        [[ScanCodeManager manager] resetScanState];
+    }];
+    [alertController addAction:action1];
+    
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 - (BOOL)canOpenCamera{
@@ -117,6 +117,42 @@
         return NO;
     }
     return YES;
+}
+
+#pragma mark - 懒加载
+
+- (MaskView *)maskView {
+    if (!_maskView) {
+        _maskView = [[MaskView alloc] initWithFrame:self.view.bounds];
+        _maskView.maskRect = CGRectMake(40.f, 160.f, SCREEN_WIDTH-80.f, SCREEN_WIDTH-80.f);
+    }
+    return _maskView;
+}
+
+- (UIButton *)torchBtn {
+    if (!_torchBtn) {
+        _torchBtn = [[UIButton alloc] initWithFrame:CGRectMake(SCREEN_WIDTH-36.f-20.f, 40.f, 36.f, 36.f)];
+        [_torchBtn setImage:[UIImage imageNamed:@"scan_light"] forState:UIControlStateNormal];
+        [_torchBtn addTarget:self action:@selector(torchBtnAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _torchBtn;
+}
+
+- (UIButton *)photoBtn {
+    if (!_photoBtn) {
+        _photoBtn = [[UIButton alloc] initWithFrame:CGRectMake(SCREEN_WIDTH-(36.f+20.f)*2, 40.f, 36.f, 36.f)];
+        [_photoBtn setImage:[UIImage imageNamed:@"scan_photo_album"] forState:UIControlStateNormal];
+        [_photoBtn addTarget:self action:@selector(photoBtnAction:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _photoBtn;
+}
+
+- (UIImageView *)rectImageView {
+    if (!_rectImageView) {
+        _rectImageView = [[UIImageView alloc] initWithFrame:self.maskView.maskRect];
+        _rectImageView.image = [UIImage imageNamed:@"scan_rect"];
+    }
+    return _rectImageView;
 }
 
 - (void)dealloc {

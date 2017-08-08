@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		584410881E763C450048F372 /* MaskView.m in Sources */ = {isa = PBXBuildFile; fileRef = 584410871E763C450048F372 /* MaskView.m */; };
-		5844108B1E7643BA0048F372 /* ImageScanViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5844108A1E7643BA0048F372 /* ImageScanViewController.m */; };
-		5844108D1E76466D0048F372 /* test.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 5844108C1E76466D0048F372 /* test.jpg */; };
 		58B932941E729E7100B69E9C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B932931E729E7100B69E9C /* main.m */; };
 		58B932971E729E7100B69E9C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B932961E729E7100B69E9C /* AppDelegate.m */; };
 		58B9329A1E729E7100B69E9C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B932991E729E7100B69E9C /* ViewController.m */; };
@@ -22,9 +20,6 @@
 /* Begin PBXFileReference section */
 		584410861E763C450048F372 /* MaskView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaskView.h; sourceTree = "<group>"; };
 		584410871E763C450048F372 /* MaskView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaskView.m; sourceTree = "<group>"; };
-		584410891E7643BA0048F372 /* ImageScanViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageScanViewController.h; sourceTree = "<group>"; };
-		5844108A1E7643BA0048F372 /* ImageScanViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageScanViewController.m; sourceTree = "<group>"; };
-		5844108C1E76466D0048F372 /* test.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = test.jpg; sourceTree = "<group>"; };
 		58B9328F1E729E7100B69E9C /* ScanCodeManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScanCodeManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B932931E729E7100B69E9C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		58B932951E729E7100B69E9C /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -74,14 +69,11 @@
 				58B932961E729E7100B69E9C /* AppDelegate.m */,
 				58B932981E729E7100B69E9C /* ViewController.h */,
 				58B932991E729E7100B69E9C /* ViewController.m */,
-				584410891E7643BA0048F372 /* ImageScanViewController.h */,
-				5844108A1E7643BA0048F372 /* ImageScanViewController.m */,
 				584410861E763C450048F372 /* MaskView.h */,
 				584410871E763C450048F372 /* MaskView.m */,
 				58B9329B1E729E7100B69E9C /* Main.storyboard */,
 				58B9329E1E729E7100B69E9C /* Assets.xcassets */,
 				58B932A01E729E7100B69E9C /* LaunchScreen.storyboard */,
-				5844108C1E76466D0048F372 /* test.jpg */,
 				58B932A31E729E7100B69E9C /* Info.plist */,
 				58B932921E729E7100B69E9C /* Supporting Files */,
 			);
@@ -167,7 +159,6 @@
 				58B932A21E729E7100B69E9C /* LaunchScreen.storyboard in Resources */,
 				58B9329F1E729E7100B69E9C /* Assets.xcassets in Resources */,
 				58B9329D1E729E7100B69E9C /* Main.storyboard in Resources */,
-				5844108D1E76466D0048F372 /* test.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,7 +172,6 @@
 				58B9329A1E729E7100B69E9C /* ViewController.m in Sources */,
 				58B932971E729E7100B69E9C /* AppDelegate.m in Sources */,
 				58B932941E729E7100B69E9C /* main.m in Sources */,
-				5844108B1E7643BA0048F372 /* ImageScanViewController.m in Sources */,
 				58B932AF1E729FF200B69E9C /* ScanCodeManager.m in Sources */,
 				584410881E763C450048F372 /* MaskView.m in Sources */,
 			);
@@ -301,12 +291,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = NAUW994EVF;
 				INFOPLIST_FILE = ScanCodeManager/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = hy.torch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
@@ -314,12 +306,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEVELOPMENT_TEAM = NAUW994EVF;
 				INFOPLIST_FILE = ScanCodeManager/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = hy.torch;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};
